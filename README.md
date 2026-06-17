@@ -65,7 +65,7 @@ HireStack is built on **5 core microservices**:
 | Name | Roll No | GitHub |
 |---|---|---|
 | Aditya Girish Joshi | 262127 | [@joshiaditya256](https://github.com/joshiaditya256) |
-| Pankaj Joshi | 262183 | [@PankajGitHub](https://github.com/pankaj9897) |
+| Pankaj Joshi | 262183 | [@Pankaj](https://github.com/pankaj9897) |
 
 - **Project Guide:** Jiva Farkade Sir
 
