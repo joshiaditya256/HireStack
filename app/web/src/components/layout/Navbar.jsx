@@ -59,7 +59,7 @@ export const Navbar = () => {
               <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                 <Box
                   component="img"
-                  src="/logo.png"
+                  src="/logo.svg"
                   alt="HireStack Logo"
                   sx={{
                     width: 40,

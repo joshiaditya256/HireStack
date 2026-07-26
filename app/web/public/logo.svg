@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" fill="#ffffff" />
+  <polygon points="512,140 745,275 745,545 512,680 279,545 279,275"
+    fill="none" stroke="#7F9F7A" stroke-width="32" stroke-linejoin="round" />
+  <text x="425" y="490" font-family="Verdana, Geneva, sans-serif" font-weight="700"
+    font-size="280" fill="#7F9F7A" text-anchor="middle">H</text>
+  <text x="600" y="490" font-family="Verdana, Geneva, sans-serif" font-weight="700"
+    font-size="280" fill="#F2C4A0" text-anchor="middle" opacity="0.92">S</text>
+</svg>
