@@ -1,0 +1,77 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    include: secret
+  application:
+    name: api-gateway
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+  cloud:
+    gateway:
+      routes:
+        # Auth Service Routes
+        - id: auth-service
+          uri: http://localhost:5000
+          predicates:
+            - Path=/api/auth/**
+#          filters:
+#            - RewritePath=/api/auth/(?<segment>.*), /api/${segment}
+        
+        # Profile Service Routes
+        - id: profile-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/profile/**
+        
+        # Job Service Routes
+        - id: job-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/jobs/**,/api/companies/**,/api/applications/**
+        
+        # Feed Service Routes
+        - id: feed-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/feed/**
+      
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:5173"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
+
+# JWT Configuration (should match auth-service)
+jwt:
+  expiration: 2592000000 # 30 days in milliseconds
+
+# Public endpoints that don't require authentication
+security:
+  public-paths:
+    - /api/auth/signup
+    - /api/auth/login
+    - /api/auth/verify-otp
+    - /api/auth/resend-otp
+    - /api/auth/forgot-password
+    - /api/auth/reset-password
+    - /api/auth/current-user
+    - /api/auth/logout
+    - /api/profile/**
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.security: DEBUG
