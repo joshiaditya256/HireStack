@@ -1,0 +1,42 @@
+{
+  "name": "profile-service",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Spring Boot Profile Service for JobConnect",
+  "scripts": {
+    
+    "dev": "mvn spring-boot:run -Dspring-boot.run.profiles=dev",
+    "start": "java -jar target/profile-service-0.0.1-SNAPSHOT.jar",
+    "build": "mvn clean package -DskipTests",
+    "build:prod": "mvn clean package",
+    "test": "mvn test",
+    "test:watch": "mvn test -DskipTests=false -Dtest=**/*Test",
+    "clean": "mvn clean",
+    "compile": "mvn compile",
+    "package": "mvn package -DskipTests",
+    "verify": "mvn verify",
+    "install": ".\\mvnw.cmd install -DskipTests",
+    "lint": "echo 'Java linting with checkstyle' && mvn checkstyle:check || true",
+    "format": "mvn spotless:apply || true",
+    "db:migrate": "echo 'Use Prisma for migrations'",
+    "docker:build": "docker build -t profile-service:latest .",
+    "docker:run": "docker run -p 8081:8081 profile-service:latest"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18.0.0",
+    "java": ">=17.0.0",
+    "maven": ">=3.8.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/JobConnect.git"
+  },
+  "keywords": [
+    "spring-boot",
+    "profile-service",
+    "microservices",
+    "java"
+  ]
+}
