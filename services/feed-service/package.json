@@ -1,0 +1,10 @@
+{
+    "name": "feed-service",
+    "version": "0.0.1",
+    "private": true,
+    "scripts": {
+        "dev": "mvn spring-boot:run",
+        "build": "mvn clean package -DskipTests",
+        "test": "mvn test"
+    }
+}
