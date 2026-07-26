@@ -1,0 +1,92 @@
+# ---------------------------------------------------------
+# Global ignores for all apps and packages
+# ---------------------------------------------------------
+
+# Node modules
+node_modules/
+**/node_modules/
+
+# Build output
+dist/
+build/
+out/
+.next/
+.nuxt/
+.vercel/
+.temp/
+.tmp/
+temp/
+tmp/
+.cache/
+
+# Turbo
+.turbo/
+turbo.log
+
+# TypeScript
+*.tsbuildinfo
+**/*.tsbuildinfo
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.log
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Editor / OS junk
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.swp
+*.swo
+
+# Testing
+coverage/
+nyc_output/
+jest-cache/
+jest-global-mocks/
+
+# Maven / Java
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+*.class
+.mvn/wrapper/maven-wrapper.jar
+.metadata/
+
+# .NET
+obj/
+bin/
+
+# Secrets - never commit
+*-secret.properties
+*-secret.yml
+*-secret.yaml
+application-secret.*
+
+# Build artifacts
+*.local
+*.tgz
+*.exe
+*.out
+*.app
+
+# Misc
+*.orig
+*.patch
+
+# Local-only docs - not pushed to GitHub
+docs/BUILD_GUIDE.md
+docs/PROJECT_DOCUMENTATION.md
