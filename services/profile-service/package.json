@@ -5,9 +5,9 @@
   "description": "Spring Boot Profile Service for JobConnect",
   "scripts": {
     
-    "dev": "mvn spring-boot:run -Dspring-boot.run.profiles=dev",
+    "dev": ".\\mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=dev",
     "start": "java -jar target/profile-service-0.0.1-SNAPSHOT.jar",
-    "build": "mvn clean package -DskipTests",
+    "build": ".\\mvnw.cmd clean package -DskipTests",
     "build:prod": "mvn clean package",
     "test": "mvn test",
     "test:watch": "mvn test -DskipTests=false -Dtest=**/*Test",
