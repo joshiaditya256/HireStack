@@ -2,6 +2,9 @@
 # Global ignores for all apps and packages
 # ---------------------------------------------------------
 
+# Local tool config (not part of the project)
+.claude/
+
 # Node modules
 node_modules/
 **/node_modules/
