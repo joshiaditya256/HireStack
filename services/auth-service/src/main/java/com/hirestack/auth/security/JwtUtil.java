@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
  * role-reading logic actually has something real to read.
  */
 @Component
-public class JwtUtil {
+public class JwtUtil { 
 
     private static final long AUTH_TOKEN_VALIDITY_MS = 2_592_000_000L; // 30 days
     private static final long RESET_TOKEN_VALIDITY_MS = 15 * 60 * 1000L; // 15 minutes
