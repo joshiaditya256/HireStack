@@ -38,27 +38,39 @@ spring:
           uri: http://localhost:8084
           predicates:
             - Path=/api/feed/**
-      
-      globalcors:
-        corsConfigurations:
-          '[/**]':
-            allowedOrigins: "http://localhost:5173"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - PATCH
-              - OPTIONS
-            allowedHeaders: "*"
-            allowCredentials: true
-            maxAge: 3600
+
+      # BUGFIX: this globalcors block used to coexist with SecurityConfig's own
+      # CorsConfigurationSource bean (both were independently attaching CORS response headers
+      # to every request), so every real browser response through the gateway carried
+      # *duplicated* Access-Control-Allow-Origin / Access-Control-Allow-Credentials headers.
+      # Browsers reject a response with more than one Access-Control-Allow-Origin value
+      # outright -- this surfaced live during manual testing as every gateway-routed request
+      # failing client-side with a bare "net::ERR_FAILED" (curl doesn't enforce CORS, so it
+      # looked completely fine there, which is why this had gone unnoticed). Spring Security's
+      # cors() integrates with the rest of SecurityConfig's authorization rules in one place,
+      # so that's the one kept; this gateway-level block is removed rather than the other way
+      # around.
 
 # JWT Configuration (should match auth-service)
 jwt:
   expiration: 2592000000 # 30 days in milliseconds
 
-# Public endpoints that don't require authentication
+# Centralized activity-logging service (.NET / ASP.NET Core minimal API, see
+# services/logger-service). The gateway fires a best-effort, non-blocking POST here for
+# every request it routes (see ActivityLoggingFilter) so there's one place that sees every
+# hop across all 4 downstream services -- this is what the "logs" table in init.sql was
+# always meant to back, and what the resume's ".NET logger service for centralized activity
+# logging across services" line refers to.
+logger:
+  service:
+    url: http://localhost:5090/api/logs
+    enabled: true
+
+# Public endpoints that don't require authentication.
+# NOTE: /api/profile/** used to be listed here in full, which meant profile-service never
+# received a validated JWT context or gateway-forwarded identity headers at all -- even for
+# calls that should require login (e.g. updating your own profile). Removed; profile-service
+# routes now go through the same authenticated()-by-default rule as job/feed-service.
 security:
   public-paths:
     - /api/auth/signup
@@ -69,7 +81,6 @@ security:
     - /api/auth/reset-password
     - /api/auth/current-user
     - /api/auth/logout
-    - /api/profile/**
 
 logging:
   level:

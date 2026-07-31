@@ -85,6 +85,18 @@ export const addComment = createAsyncThunk(
     }
 );
 
+export const deletePost = createAsyncThunk(
+    "feed/deletePost",
+    async ({ postId }, { rejectWithValue }) => {
+        try {
+            await feedInstance.delete(`/api/feed/post/${postId}`);
+            return { postId };
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.message || "Failed to delete post");
+        }
+    }
+);
+
 export const fetchComments = createAsyncThunk(
     "feed/fetchComments",
     async ({ postId }, { rejectWithValue }) => {
@@ -136,8 +148,12 @@ const feedSlice = createSlice({
                     state.page += 1;
                 }
 
+                // BUGFIX: state.page was being incremented a second time right here,
+                // unconditionally, on top of the increment already done in the if/else
+                // above -- so page jumped to 2 after the very first load and every
+                // subsequent "load more" advanced it by 2 instead of 1. Removed the
+                // duplicate increment; state.hasMore still updates every time.
                 state.hasMore = !action.payload.data?.last;
-                state.page += 1;
             })
             .addCase(fetchFeed.rejected, (state, action) => {
                 state.loading = false;
@@ -170,6 +186,12 @@ const feedSlice = createSlice({
                 if (post) {
                     post.commentsCount += 1;
                 }
+            })
+            // Delete Post
+            .addCase(deletePost.fulfilled, (state, action) => {
+                const { postId } = action.payload;
+                state.posts = state.posts.filter(p => p.postId !== postId);
+                state.userPosts = state.userPosts.filter(p => p.postId !== postId);
             })
             // Fetch User Posts
             .addCase(fetchUserPosts.pending, (state) => {

@@ -17,6 +17,11 @@ public interface FeedService {
 
 	public void likePost(Long postId, Long userId);
 
+	/** The id of the user who authored this post, or null if the post doesn't exist. */
+	public Long getPostOwnerId(Long postId);
+
+	public void deletePost(Long postId);
+
 	public CommentDTO addComment(Long postId, Long userId, String content);
 
 	public java.util.List<CommentDTO> getComments(Long postId);

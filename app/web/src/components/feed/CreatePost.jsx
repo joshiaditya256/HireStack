@@ -49,9 +49,7 @@ const CreatePost = () => {
         formData.append("file", selectedFile);
 
         // Upload to backend
-        const uploadRes = await feedInstance.post("/api/feed/upload/image", formData, {
-          headers: { "Content-Type": "multipart/form-data" }
-        });
+        const uploadRes = await feedInstance.post("/api/feed/upload/image", formData);
         finalImageUrl = uploadRes.data;
       }
 

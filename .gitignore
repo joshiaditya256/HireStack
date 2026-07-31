@@ -90,3 +90,4 @@ application-secret.*
 # Local-only docs - not pushed to GitHub
 docs/BUILD_GUIDE.md
 docs/PROJECT_DOCUMENTATION.md
+CHANGES.md

@@ -3,6 +3,7 @@ package com.jobconnect.job.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,12 +19,17 @@ import com.jobconnect.job.repository.JobRepository;
 @Service
 @Transactional
 public class CompanyServiceImpl implements CompanyService {
-    
+
+    // BUGFIX: neither field was ever @Autowired (or constructor-injected), so both were
+    // always null at runtime -- every method below NPE'd as soon as it touched the
+    // repository. Field-level @Autowired fixes it with a minimal diff.
+    @Autowired
     private CompanyRepository companyRepository;
-    
+
+    @Autowired
     private JobRepository jobRepository;
-    
-    
+
+
     @Override
     public CompanyResponse createCompany(CreateCompanyRequest request) {
         Company company = new Company();

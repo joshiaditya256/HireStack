@@ -1,31 +1,7 @@
 package com.jobconnect.profile.repository;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.jobconnect.profile.entities.Profile;
-
-@Repository
-public interface ProfileRespository extends JpaRepository<Profile, Long> {
-
-    Optional<Profile> getProfileByUserId(Long userId);
-    
-    boolean existsByUserId(Long userId);
-
-    @Transactional
-    @Modifying
-    void deleteByUserId(Long userId);
-	
-    List<Profile> findBySkillsContaining(String skill);
-    
-    List<Profile> findByLocationContaining(String location);
-    
-    List<Profile> findBySkillsAndLocation(String skills, String location);
-	
-	
-}
+// BUGFIX (see interview notes, "Known Issues" section): this file used to define the actual
+// @Repository interface under the misspelled name "ProfileRespository". It has been renamed to
+// ProfileRepository.java (correct spelling) in this same package. This file is intentionally
+// left as an empty compilation unit (rather than deleted) so the rename is visible in one diff --
+// it declares no types and is not picked up by Spring's component scan.

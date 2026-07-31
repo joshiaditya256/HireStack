@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jobconnect.job.dto.CreateJobRequest;
 import com.jobconnect.job.dto.JobResponse;
 import com.jobconnect.job.dto.UpdateJobRequest;
+import com.jobconnect.job.entities.Role;
+import com.jobconnect.job.security.AccessGuard;
 import com.jobconnect.job.service.JobService;
 
 @RestController
@@ -30,10 +32,17 @@ public class JobController {
     private JobService jobService;
 
     @PostMapping
-    public ResponseEntity<JobResponse> createJob(
-            @org.springframework.web.bind.annotation.RequestHeader(value = "X-User-Id", required = false) Long userId,
-            @RequestBody CreateJobRequest request) {
-        Long currentUserId = userId != null ? userId : 1L; // Fallback for dev/testing
+    public ResponseEntity<JobResponse> createJob(@RequestBody CreateJobRequest request) {
+        // BUGFIX: this used to trust a client-suppliable X-User-Id header (falling back to a
+        // hardcoded 1L when absent, which was always the case through the gateway) -- meaning
+        // every job created through the real frontend was attributed to whichever user happened
+        // to have id=1, and any caller could impersonate any recruiter by setting the header
+        // directly. AccessGuard now reads the *gateway-validated* identity (see CurrentUserFilter)
+        // and enforces that only a RECRUITER or ADMIN may create a job at all -- api-gateway's
+        // SecurityConfig already blocks the wrong role before the request gets here, this is the
+        // defense-in-depth copy for callers that reach job-service directly.
+        AccessGuard.requireRole(Role.RECRUITER, Role.ADMIN);
+        Long currentUserId = AccessGuard.requireUserId();
         JobResponse response = jobService.createJob(request, currentUserId);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -58,12 +67,17 @@ public class JobController {
     public ResponseEntity<JobResponse> updateJob(
             @PathVariable Long jobId,
             @RequestBody UpdateJobRequest request) {
+        // Only the recruiter who owns this job (or an admin) may edit it -- role alone isn't
+        // enough here, since any two recruiters would otherwise be able to edit each other's
+        // postings.
+        AccessGuard.requireOwnerOrRole(jobService.getJobById(jobId).getRecruiterId(), Role.ADMIN);
         JobResponse response = jobService.updateJob(jobId, request);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{jobId}")
     public ResponseEntity<Void> deleteJob(@PathVariable Long jobId) {
+        AccessGuard.requireOwnerOrRole(jobService.getJobById(jobId).getRecruiterId(), Role.ADMIN);
         jobService.deleteJob(jobId);
         return ResponseEntity.noContent().build();
     }
@@ -82,6 +96,7 @@ public class JobController {
 
     @PatchMapping("/{jobId}/close")
     public ResponseEntity<JobResponse> closeJob(@PathVariable Long jobId) {
+        AccessGuard.requireOwnerOrRole(jobService.getJobById(jobId).getRecruiterId(), Role.ADMIN);
         JobResponse response = jobService.closeJob(jobId);
         return ResponseEntity.ok(response);
     }
@@ -89,6 +104,8 @@ public class JobController {
     @GetMapping("/{jobId}/applications")
     public ResponseEntity<List<com.jobconnect.job.dto.ApplicationResponse>> getJobApplications(
             @PathVariable Long jobId) {
+        // Only the owning recruiter (or an admin) can see who applied to a given job.
+        AccessGuard.requireOwnerOrRole(jobService.getJobById(jobId).getRecruiterId(), Role.ADMIN);
         List<com.jobconnect.job.dto.ApplicationResponse> applications = jobService.getJobApplications(jobId);
         return ResponseEntity.ok(applications);
     }

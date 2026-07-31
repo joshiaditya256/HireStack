@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>HireStack.LoggerService</RootNamespace>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- BUGFIX: this machine only has the .NET 10 runtime installed, not .NET 8. Without a
+         roll-forward policy, a net8.0-targeted app refuses to launch at all ("You must install
+         or update .NET to run this application"). RollForward=LatestMajor lets it run on
+         whatever later major runtime is actually present instead of hard failing, while still
+         targeting net8.0 (the LTS release) for anyone building on a machine that has it. -->
+    <RollForward>LatestMajor</RollForward>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Lightweight ADO.NET MySQL driver; no ORM needed for a single-table service. -->
+    <PackageReference Include="MySqlConnector" Version="2.3.7" />
+  </ItemGroup>
+
+</Project>

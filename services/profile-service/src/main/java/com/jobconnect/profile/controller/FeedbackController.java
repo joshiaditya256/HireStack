@@ -5,11 +5,10 @@ import com.jobconnect.profile.entities.FeedbackStatus;
 import com.jobconnect.profile.entities.User;
 import com.jobconnect.profile.repository.FeedbackRepository;
 import com.jobconnect.profile.repository.UserRepository;
+import com.jobconnect.profile.security.AccessGuard;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -25,15 +24,15 @@ public class FeedbackController {
     private final FeedbackRepository feedbackRepository;
     private final UserRepository userRepository;
 
+    // BUGFIX: this used to read Spring Security's SecurityContextHolder, but nothing in
+    // profile-service ever populated it (no Spring Security filter chain runs here at all) --
+    // so auth was always anonymous/null and every request to this endpoint 401'd regardless of
+    // whether the caller was actually logged in. Now reads the gateway-validated identity via
+    // AccessGuard, the same pattern the rest of this service uses.
     @PostMapping
     public ResponseEntity<?> submitFeedback(@RequestBody Map<String, String> body) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("msg", "Unauthorized"));
-        }
-
-        String email = auth.getName();
-        User user = userRepository.findByEmail(email).orElse(null);
+        Long userId = AccessGuard.requireUserId();
+        User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("msg", "User not found"));
         }
@@ -55,10 +54,7 @@ public class FeedbackController {
 
     @GetMapping
     public ResponseEntity<?> getAllFeedback() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("msg", "Admin access required"));
-        }
+        AccessGuard.requireAdmin();
 
         List<Feedback> feedbacks = feedbackRepository.findAllByOrderByCreatedAtDesc();
         
@@ -80,10 +76,7 @@ public class FeedbackController {
 
     @PatchMapping("/{id}/status")
     public ResponseEntity<?> updateFeedbackStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("msg", "Admin access required"));
-        }
+        AccessGuard.requireAdmin();
 
         String statusStr = body.get("status");
         if (statusStr == null || !statusStr.equals("SOLVED")) {

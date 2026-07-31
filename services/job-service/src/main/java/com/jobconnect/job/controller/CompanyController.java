@@ -2,6 +2,7 @@ package com.jobconnect.job.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,16 +19,24 @@ import com.jobconnect.job.dto.CompanyResponse;
 import com.jobconnect.job.dto.CreateCompanyRequest;
 import com.jobconnect.job.dto.JobResponse;
 import com.jobconnect.job.dto.UpdateCompanyRequest;
+import com.jobconnect.job.entities.Role;
+import com.jobconnect.job.security.AccessGuard;
 import com.jobconnect.job.service.CompanyService;
 
 @RestController
 @RequestMapping("/api/companies")
 public class CompanyController {
 
+    // BUGFIX: this field previously had no @Autowired (and no constructor injection),
+    // so Spring never populated it and every endpoint below threw a NullPointerException
+    // at request time. Field-level @Autowired matches the pattern already used by
+    // ApplicationController in this same package.
+    @Autowired
     private CompanyService companyService;
 
     @PostMapping("/createCompany")
     public ResponseEntity<CompanyResponse> createCompany(@RequestBody CreateCompanyRequest request) {
+        AccessGuard.requireRole(Role.RECRUITER, Role.ADMIN);
         CompanyResponse response = companyService.createCompany(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -49,6 +58,9 @@ public class CompanyController {
     public ResponseEntity<CompanyResponse> updateCompany(
             @PathVariable Long companyId,
             @RequestBody UpdateCompanyRequest request) {
+        // Companies have no single "owner" in this schema (no recruiter_id column on
+        // `companies`) -- role gating is the appropriate granularity here, not ownership.
+        AccessGuard.requireRole(Role.RECRUITER, Role.ADMIN);
         CompanyResponse response = companyService.updateCompany(companyId, request);
         return ResponseEntity.ok(response);
     }
@@ -56,6 +68,7 @@ public class CompanyController {
     @DeleteMapping("/{companyId}")
     public ResponseEntity<Void> deleteCompany(
             @PathVariable Long companyId) {
+        AccessGuard.requireRole(Role.RECRUITER, Role.ADMIN);
         companyService.deleteCompany(companyId);
         return ResponseEntity.noContent().build();
     }

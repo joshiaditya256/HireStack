@@ -1,0 +1,9 @@
+{
+  "name": "logger-service",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "dotnet run",
+    "build": "dotnet build"
+  }
+}

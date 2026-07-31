@@ -16,7 +16,7 @@ import com.jobconnect.profile.dto.ProfileUpdateDTO;
 import com.jobconnect.profile.dto.SkillAddDTO;
 import com.jobconnect.profile.entities.Profile;
 import com.jobconnect.profile.exception.ProfileNotFoundException;
-import com.jobconnect.profile.repository.ProfileRespository;
+import com.jobconnect.profile.repository.ProfileRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileService {
 
-	private final ProfileRespository profilerepo;
+	private final ProfileRepository profilerepo;
 
 	@Override
 	public Profile addProfile(Profile profile) {

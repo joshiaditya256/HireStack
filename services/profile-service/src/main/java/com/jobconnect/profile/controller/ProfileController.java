@@ -31,6 +31,7 @@ import com.jobconnect.profile.dto.ProfileUpdateDTO;
 import com.jobconnect.profile.dto.SkillAddDTO;
 import com.jobconnect.profile.entities.Profile;
 import com.jobconnect.profile.exception.ProfileNotFoundException;
+import com.jobconnect.profile.security.AccessGuard;
 import com.jobconnect.profile.service.ProfileService;
 
 import lombok.AllArgsConstructor;
@@ -52,11 +53,10 @@ public class ProfileController {
 	@PostMapping("/addprofile")
 	public ResponseEntity<?> addProfile(@RequestBody ProfileAddDTO dto) {
 		try {
-			// Validate required fields
-			if (dto.getUserId() == null) {
-				return ResponseEntity.badRequest()
-						.body(Map.of("msg", "User ID is required"));
-			}
+			// BUGFIX: userId used to come straight from the client-supplied request body -- any
+			// caller could create a profile "owned by" an arbitrary other user id. It's now always
+			// the gateway-validated caller's own id.
+			dto.setUserId(AccessGuard.requireUserId());
 
 			if (dto.getHeadline() == null || dto.getHeadline().trim().isEmpty()) {
 				return ResponseEntity.badRequest()
@@ -121,6 +121,7 @@ public class ProfileController {
 	// Update Complete Profile
 	@PutMapping("/{id}")
 	public ResponseEntity<Profile> updateProfile(@PathVariable Long id, @RequestBody ProfileUpdateDTO dto) {
+		requireOwnProfile(id);
 		Profile updated = service.updateProfile(id, dto);
 		return ResponseEntity.ok(updated);
 	}
@@ -128,6 +129,7 @@ public class ProfileController {
 	// Skill update
 	@PutMapping("/me/skills/{id}")
 	public ResponseEntity<Profile> updateSkills(@PathVariable Long id, @RequestBody SkillAddDTO dto) {
+		requireOwnProfile(id);
 		Profile skillsUpdated = service.updateSkills(id, dto);
 		return ResponseEntity.status(HttpStatus.ACCEPTED).body(skillsUpdated);
 	}
@@ -135,6 +137,7 @@ public class ProfileController {
 	// experience update
 	@PutMapping("/me/experience/{id}")
 	public ResponseEntity<Profile> updateExperience(@PathVariable Long id, @RequestBody ExperienceAddDTO dto) {
+		requireOwnProfile(id);
 		Profile experienceUpdated = service.updateExperience(id, dto);
 		return ResponseEntity.status(HttpStatus.ACCEPTED).body(experienceUpdated);
 	}
@@ -142,6 +145,7 @@ public class ProfileController {
 	// education update
 	@PutMapping("/me/education/{id}")
 	public ResponseEntity<Profile> updateEducation(@PathVariable Long id, @RequestBody EducationAddDTO dto) {
+		requireOwnProfile(id);
 		Profile educationUpdated = service.updateEducation(id, dto);
 		return ResponseEntity.status(HttpStatus.ACCEPTED).body(educationUpdated);
 	}
@@ -149,6 +153,7 @@ public class ProfileController {
 	// headline update
 	@PatchMapping("/{id}/headline")
 	public ResponseEntity<Profile> updateHeadline(@PathVariable Long id, @RequestBody HeadlineDTO dto) {
+		requireOwnProfile(id);
 		Profile updated = service.updateHeadline(id, dto);
 		return ResponseEntity.ok(updated);
 	}
@@ -156,6 +161,7 @@ public class ProfileController {
 	// bio update
 	@PatchMapping("/{id}/bio")
 	public ResponseEntity<Profile> updateBio(@PathVariable Long id, @RequestBody BioDTO dto) {
+		requireOwnProfile(id);
 		Profile updated = service.updateBio(id, dto);
 		return ResponseEntity.ok(updated);
 	}
@@ -163,6 +169,7 @@ public class ProfileController {
 	// location update
 	@PatchMapping("/{id}/location")
 	public ResponseEntity<Profile> updateLocation(@PathVariable Long id, @RequestBody LocationDTO dto) {
+		requireOwnProfile(id);
 		Profile updated = service.updateLocation(id, dto);
 		return ResponseEntity.ok(updated);
 	}
@@ -170,6 +177,7 @@ public class ProfileController {
 	// avatar update
 	@PatchMapping("/{id}/avatar")
 	public ResponseEntity<Profile> updateAvatar(@PathVariable Long id, @RequestBody AvatarDTO dto) {
+		requireOwnProfile(id);
 		Profile updated = service.updateAvatar(id, dto);
 		return ResponseEntity.ok(updated);
 	}
@@ -178,6 +186,7 @@ public class ProfileController {
 	@PatchMapping("/{id}/banner")
 	public ResponseEntity<Profile> updateBanner(@PathVariable Long id,
 			@RequestBody BannerDTO dto) {
+		requireOwnProfile(id);
 		Profile updated = service.updateBanner(id, dto);
 		return ResponseEntity.ok(updated);
 	}
@@ -185,8 +194,20 @@ public class ProfileController {
 	// Delete Profile
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteProfile(@PathVariable Long id) {
+		requireOwnProfile(id);
 		service.deleteProfile(id);
 		return ResponseEntity.noContent().build();
+	}
+
+	// BUGFIX: every write endpoint below used to accept an arbitrary {id} path variable with
+	// no check that it belonged to the caller -- any authenticated (and, before the gateway
+	// fix, even unauthenticated) user could edit or delete any other user's profile by simply
+	// changing the id in the URL. This centralizes the ownership check (profile.userId must
+	// match the gateway-validated caller, unless they're an admin) in one place instead of
+	// repeating it in every handler above.
+	private void requireOwnProfile(Long profileId) {
+		Profile profile = service.getProfile(profileId);
+		AccessGuard.requireOwnerOrAdmin(profile.getUserId());
 	}
 
 	// Search Profiles

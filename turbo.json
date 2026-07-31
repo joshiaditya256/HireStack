@@ -1,6 +1,6 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "ui": "tui",
+  "ui": "stream",
   "tasks": {
     "db:generate": {
       "cache": false

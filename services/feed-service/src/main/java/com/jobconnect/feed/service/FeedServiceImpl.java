@@ -91,6 +91,22 @@ public class FeedServiceImpl implements FeedService {
 	}
 
 	@Override
+	public Long getPostOwnerId(Long postId) {
+		return postrepo.findById(postId).map(Post::getUserId).orElse(null);
+	}
+
+	@Override
+	@Transactional
+	public void deletePost(Long postId) {
+		if (!postrepo.existsById(postId)) {
+			throw new RuntimeException("Post not found with id: " + postId);
+		}
+		// post_likes and comments both have ON DELETE CASCADE FKs to posts (see
+		// infra/docker/mysql/init.sql), so deleting the post row is sufficient.
+		postrepo.deleteById(postId);
+	}
+
+	@Override
 	@Transactional
 	public com.jobconnect.feed.dtos.CommentDTO addComment(Long postId, Long userId, String content) {
 		com.jobconnect.feed.entities.Comment comment = new com.jobconnect.feed.entities.Comment();

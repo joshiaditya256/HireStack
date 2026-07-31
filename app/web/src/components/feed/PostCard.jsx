@@ -15,7 +15,10 @@ import {
   List,
   ListItem,
   ListItemAvatar,
-  ListItemText
+  ListItemText,
+  Menu,
+  MenuItem,
+  Snackbar
 } from "@mui/material";
 import {
   ThumbUpOutlined,
@@ -23,21 +26,42 @@ import {
   CommentOutlined,
   ShareOutlined,
   MoreVert,
-  Send
+  Send,
+  DeleteOutline
 } from "@mui/icons-material";
-import { likePost, addComment, fetchComments } from "../../store/slices/feedSlice";
+import { likePost, addComment, fetchComments, deletePost } from "../../store/slices/feedSlice";
 
 const PostCard = ({ post }) => {
   const dispatch = useDispatch();
+  const currentUser = useSelector((state) => state.auth.user);
   const [showComments, setShowComments] = useState(false);
   const [commentContent, setCommentContent] = useState("");
   const [comments, setComments] = useState([]);
   const [loadingComments, setLoadingComments] = useState(false);
+  const [menuAnchor, setMenuAnchor] = useState(null);
+  const [shareMessage, setShareMessage] = useState("");
 
   if (!post) return null;
 
+  const isOwnPost = String(currentUser?.id) === String(post.user?.id);
+
   const handleLike = () => {
     dispatch(likePost({ postId: post.postId }));
+  };
+
+  const handleDelete = () => {
+    setMenuAnchor(null);
+    dispatch(deletePost({ postId: post.postId }));
+  };
+
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/feed?post=${post.postId}`;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setShareMessage("Link copied to clipboard");
+    } catch (error) {
+      setShareMessage("Couldn't copy link");
+    }
   };
 
   const handleCommentClick = async () => {
@@ -80,9 +104,19 @@ const PostCard = ({ post }) => {
           </Avatar>
         }
         action={
-          <IconButton aria-label="settings">
-            <MoreVert />
-          </IconButton>
+          isOwnPost ? (
+            <>
+              <IconButton aria-label="settings" onClick={(e) => setMenuAnchor(e.currentTarget)}>
+                <MoreVert />
+              </IconButton>
+              <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}>
+                <MenuItem onClick={handleDelete} sx={{ color: "error.main" }}>
+                  <DeleteOutline fontSize="small" sx={{ mr: 1 }} />
+                  Delete post
+                </MenuItem>
+              </Menu>
+            </>
+          ) : null
         }
         title={
           <span style={{ fontWeight: 600 }}>
@@ -129,10 +163,17 @@ const PostCard = ({ post }) => {
           </Typography>
         </Box>
 
-        <IconButton aria-label="share">
+        <IconButton aria-label="share" onClick={handleShare}>
           <ShareOutlined fontSize="small" />
         </IconButton>
       </CardActions>
+
+      <Snackbar
+        open={Boolean(shareMessage)}
+        autoHideDuration={2500}
+        onClose={() => setShareMessage("")}
+        message={shareMessage}
+      />
 
       {/* Comments Section */}
       {showComments && (

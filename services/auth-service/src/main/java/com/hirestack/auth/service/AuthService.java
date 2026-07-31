@@ -111,7 +111,7 @@ public class AuthService {
         user.setOtpAttempts(0);
         user = userRepository.save(user);
 
-        String token = jwtUtil.generateAuthToken(user.getEmail(), user.getId());
+        String token = jwtUtil.generateAuthToken(user.getEmail(), user.getId(), user.getRole());
         return new VerifyResult(token, toUserResponse(user));
     }
 
@@ -127,7 +127,7 @@ public class AuthService {
         }
 
         Profile profile = profileRepository.findByUserId(user.getId()).orElse(null);
-        String token = jwtUtil.generateAuthToken(user.getEmail(), user.getId());
+        String token = jwtUtil.generateAuthToken(user.getEmail(), user.getId(), user.getRole());
         return new LoginResult(token, toProfileResponse(profile), toUserResponse(user));
     }
 

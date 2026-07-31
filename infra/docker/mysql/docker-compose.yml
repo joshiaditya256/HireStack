@@ -5,7 +5,8 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: hirestack
+      # jobConnect is the one authoritative schema -- see infra/docker/mysql/init.sql.
+      MYSQL_DATABASE: jobConnect
       MYSQL_USER: aditya
       MYSQL_PASSWORD: adityapassword
     ports:
