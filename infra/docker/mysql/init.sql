@@ -10,7 +10,7 @@
 -- database itself and grants the `aditya` app user access to it on first container boot.
 
 CREATE DATABASE IF NOT EXISTS jobConnect;
-USE jobConnect;
+USE jobConnect; 
 
 CREATE TABLE users (
   id BIGINT NOT NULL AUTO_INCREMENT,
