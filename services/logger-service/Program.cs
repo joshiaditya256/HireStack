@@ -13,7 +13,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("InternalOnly", policy =>
     {
-        policy.WithOrigins("http://localhost:8080")
+        policy.WithOrigins("http://localhost:8080")  
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
