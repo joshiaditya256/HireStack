@@ -41,12 +41,12 @@ CREATE TABLE companies (
   created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   updated_at DATETIME(3) NOT NULL,
   PRIMARY KEY (company_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;  
 
 CREATE TABLE profiles (
   id BIGINT NOT NULL AUTO_INCREMENT,
   user_id BIGINT NOT NULL,
-  headline VARCHAR(255) DEFAULT NULL,
+  headline VARCHAR(254) DEFAULT NULL,
   bio TEXT,
   skills TEXT,
   experience TEXT,
