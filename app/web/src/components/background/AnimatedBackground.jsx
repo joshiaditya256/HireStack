@@ -22,7 +22,7 @@ export const AnimatedBackground = () => {
           y: [0, 30, 0],
         }}
         transition={{
-          duration: 25,
+          duration: 26,
           repeat: Infinity,
           ease: "easeInOut",
         }}
