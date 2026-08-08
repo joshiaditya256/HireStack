@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 class FeedServiceApplicationTests {
 
 	@Test
-	void contextLoads() {
+	void contextLoads() {    
 	}
 
 }
