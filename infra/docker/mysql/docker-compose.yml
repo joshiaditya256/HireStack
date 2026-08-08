@@ -1,12 +1,12 @@
 services:
   mysql:
     image: mysql:8.0
-    container_name: hirestack-mysql
-    restart: always
+    container_name: hirestack-mysql 
+    restart: always     
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root    
       # jobConnect is the one authoritative schema -- see infra/docker/mysql/init.sql.
-      MYSQL_DATABASE: jobConnect
+      MYSQL_DATABASE: jobConnect 
       MYSQL_USER: aditya
       MYSQL_PASSWORD: adityapassword
     ports:
@@ -15,7 +15,7 @@ services:
       - mysql_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]  
       interval: 5s
       timeout: 5s
       retries: 5
